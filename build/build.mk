@@ -11,8 +11,8 @@ VERSION_FLAG ?=
 DEBUG_MACROS ?= DEBUG
 RELEASE_MACROS ?= NDEBUG
 
-DEBUG_FLAGS = -g -Wall $(addprefix -D,$(DEBUG_MACROS))
-RELEASE_FLAGS = -O3 -Wall -s $(addprefix -D,$(RELEASE_MACROS))
+DEBUG_FLAGS = -g -Og -std=c++23 -Wall -Wextra -Wconversion -Wpedantic $(addprefix -D,$(DEBUG_MACROS))
+RELEASE_FLAGS = -O3 -std=c++23 -Wall -s $(addprefix -D,$(RELEASE_MACROS))
 
 VERBOSE ?= FALSE
 ifeq ($(VERBOSE),FALSE)
