@@ -1,34 +1,50 @@
 #include "usb_handle.hpp"
 
+#include <libusb-1.0/libusb.h>
+
 #include <cstdio>
+
+void USBHandle::libusb_device_handle_deleter::operator()(
+    libusb_device_handle* const handle) const noexcept {
+    if (handle) {
+        libusb_close(handle);
+    }
+}
 
 USBHandle::USBHandle(libusb_context* ctx, libusb_device* const dev,
                      const int interface)
     : ctx(ctx), interface(interface) {
-    auto err = libusb_open(dev, &handle);
-    if (err != LIBUSB_SUCCESS) {
-        throw libusb_error(err);
+    int err;
+
+    {
+        libusb_device_handle* temp_handle;
+        err = libusb_open(dev, &temp_handle);
+        if (err != LIBUSB_SUCCESS) {
+            throw libusb_error(err);
+        }
+        handle.reset(temp_handle);
     }
 
     // Apparently detaching the USB device's kernel driver is a required step on
     // Linux.
-    err = libusb_set_auto_detach_kernel_driver(handle, true);
+    err = libusb_set_auto_detach_kernel_driver(handle.get(), true);
     if (err != LIBUSB_SUCCESS && err != LIBUSB_ERROR_NOT_SUPPORTED) {
-        libusb_close(handle);
         throw libusb_error(err);
     }
 
-    err = libusb_claim_interface(handle, this->interface);
+    err = libusb_claim_interface(handle.get(), this->interface);
     if (err != LIBUSB_SUCCESS) {
-        libusb_close(handle);
         throw libusb_error(err);
     }
 }
 
 USBHandle::USBHandle(USBHandle&& other) noexcept
-    : ctx(other.ctx), interface(other.interface), handle(other.handle) {
-    other.handle = nullptr;
-}
+    : ctx(other.ctx),
+      interface(other.interface),
+      active_transfers_mutex(),
+      active_transfers(std::move(other.active_transfers)),
+      callback_map(std::move(other.callback_map)),
+      handle(std::move(other.handle)) {}
 
 USBHandle::~USBHandle() {
     puts("~USBHandle");
@@ -52,12 +68,7 @@ USBHandle::~USBHandle() {
         }
     }
 
-    libusb_release_interface(handle, interface);
-    puts("1");
-
-    // BUG this line hangs.
-    libusb_close(handle);
-    puts("4");
+    libusb_release_interface(handle.get(), interface);
 }
 
 void USBHandle::submit_control_transfer(Packet* const request,
@@ -83,7 +94,7 @@ void USBHandle::submit_control_transfer(Packet* const request,
                               0x0206,  // Not sure what this means
                               0x0005,  // Not sure what this means
                               31);
-    libusb_fill_control_transfer(transfer, handle, buffer,
+    libusb_fill_control_transfer(transfer, handle.get(), buffer,
                                  USBHandle::control_transfer_handler, this,
                                  timeout);
     std::copy(reinterpret_cast<uint8_t*>(request),
@@ -159,7 +170,7 @@ void USBHandle::interrupt_transfer_handler(libusb_transfer* transfer) {
 
 void USBHandle::start_interrupt_listener(const unsigned char endpoint) {
     // TODO if this is slow, do it in the constructor.
-    const auto device = libusb_get_device(handle);
+    const auto device = libusb_get_device(handle.get());
 
     const auto buffer_size = libusb_get_max_packet_size(device, endpoint) * 2;
 
@@ -175,9 +186,9 @@ void USBHandle::start_interrupt_listener(const unsigned char endpoint) {
         active_transfers.insert(transfer);
     }
 
-    libusb_fill_interrupt_transfer(transfer, handle, endpoint, interrupt_buffer,
-                                   buffer_size, interrupt_transfer_handler,
-                                   this,
+    libusb_fill_interrupt_transfer(transfer, handle.get(), endpoint,
+                                   interrupt_buffer, buffer_size,
+                                   interrupt_transfer_handler, this,
                                    0  // unlimited
     );
 

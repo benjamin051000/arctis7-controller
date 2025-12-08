@@ -1,6 +1,7 @@
 #pragma once
 #include <libusb-1.0/libusb.h>
 
+#include <memory>
 #include <mutex>
 #include <set>
 #include <unordered_map>
@@ -27,9 +28,14 @@ class USBHandle {
 
     static void interrupt_transfer_handler(libusb_transfer* transfer);
 
-   public:
-    libusb_device_handle* handle = nullptr;
+    struct libusb_device_handle_deleter {
+        void operator()(libusb_device_handle* const handle) const noexcept;
+    };
 
+   public:
+    std::unique_ptr<libusb_device_handle, libusb_device_handle_deleter> handle;
+
+    // TODO can we get rid of this?
     USBHandle(USBHandle&&) noexcept;
 
     ~USBHandle();
