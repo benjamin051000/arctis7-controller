@@ -57,13 +57,19 @@ USBHandle USB::find_device(const uint16_t idVendor, const uint16_t idProduct,
             desc.iManufacturer == iManufacturer && desc.iProduct == iProduct) {
             // First, allocate this one
             const auto cheat = 5;  // TODO get this value from the descriptor.
-            USBHandle handle(ctx.get(), devices[i], cheat);
+            try {
+                USBHandle handle(ctx.get(), devices[i], cheat);
 
-            // Then, free the list.
-            libusb_free_device_list(devices, true);
+                // unref_devices is true because constructing the
+                // USBHandle adds a refcount to the device we want.
+                libusb_free_device_list(devices, true);
 
-            // handle still has a ref to the underlying object.
-            return handle;
+                return handle;
+
+            } catch (const libusb_error& err) {
+                libusb_free_device_list(devices, true);
+                throw err;
+            }
         }
     }
 
