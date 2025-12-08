@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <sys/time.h>
 #include <cstdint>
 #include <libusb-1.0/libusb.h>
@@ -8,11 +9,14 @@
 
 
 class USB {
-	libusb_context* ctx;
+	struct libusb_context_deleter {
+		void operator()(libusb_context *const ctx) const noexcept;
+	};
+	std::unique_ptr<libusb_context, libusb_context_deleter> ctx;
 
 public:
 	USB();
-	~USB();
+	~USB() = default;
 
 	USBHandle find_device(
 		const uint16_t idVendor,

@@ -35,7 +35,7 @@ public:
 	*/
 	void submit_control_transfer(
 		Packet *const request,
-		const int timeout,
+		const unsigned int timeout,
 		void(*callback)(void)	
 	);
 

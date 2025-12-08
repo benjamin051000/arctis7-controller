@@ -6,17 +6,22 @@
 #include <sys/types.h>
 #include <vector>
 
-
-USB::USB() {
-	const auto err = libusb_init(&ctx);
-	if (err != LIBUSB_SUCCESS) {
-		throw libusb_error(err);
+void USB::libusb_context_deleter::operator()(libusb_context *const ctx) const noexcept {
+	// NOTE: ctx is generally non-null. However, it's possible 
+	// to manually set it to nullptr and then manually call the deleter.
+	// So, check that it's non-null here just to be extra safe.
+	if (ctx) {
+		libusb_exit(ctx);
 	}
 }
 
-USB::~USB() {
-	puts("~USB");
-	libusb_exit(ctx);
+USB::USB() {
+	libusb_context* temp;
+	const auto err = libusb_init(&temp);
+	if (err != LIBUSB_SUCCESS) {
+		throw libusb_error(err);
+	}
+	ctx.reset(temp);
 }
 
 USBHandle USB::find_device(
@@ -28,7 +33,7 @@ USBHandle USB::find_device(
 
 	libusb_device** devices = nullptr;
 
-	const auto list_size = libusb_get_device_list(ctx, &devices);
+	const auto list_size = libusb_get_device_list(ctx.get(), &devices);
 	
 	if (list_size < 0) {
 		libusb_free_device_list(devices, true);
@@ -52,7 +57,7 @@ USBHandle USB::find_device(
 			
 			// First, allocate this one
 			const auto cheat = 5; // TODO get this value from the descriptor.
-			USBHandle handle(ctx, devices[i], cheat); 
+			USBHandle handle(ctx.get(), devices[i], cheat); 
 
 			// Then, free the list.
 			libusb_free_device_list(devices, true);
@@ -68,7 +73,7 @@ USBHandle USB::find_device(
 }
 
 std::vector<pollfd> USB::get_pollfds() {
-	const libusb_pollfd** usb_pollfds = libusb_get_pollfds(ctx);
+	const libusb_pollfd** usb_pollfds = libusb_get_pollfds(ctx.get());
 	
 	std::vector<pollfd> pollfds;
 	for(auto it = usb_pollfds; *it != nullptr; it++) {
@@ -84,11 +89,11 @@ std::vector<pollfd> USB::get_pollfds() {
 
 timeval USB::get_next_timeout() {
 	timeval tv;
-	libusb_get_next_timeout(ctx, &tv);
+	libusb_get_next_timeout(ctx.get(), &tv);
 	return tv;
 }
 
 void USB::handle_events_timeout() {
 	timeval zero{.tv_sec=0, .tv_usec=0};
-	libusb_handle_events_timeout(ctx, &zero);
+	libusb_handle_events_timeout(ctx.get(), &zero);
 }
