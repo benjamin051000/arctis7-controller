@@ -2,16 +2,14 @@
 #define __NEW_HEADSET_H__
 
 #include "Packets.h"
+#include "usb.hpp"
 
 #include <libusb-1.0/libusb.h>
-#include <vector>
 #include <functional>
 
 class Headset {
 private:
-    libusb_device* device;
-    libusb_device_handle *handle;
-    std::vector<libusb_transfer*> active_transfers;
+	USBHandle handle;
 
     std::function<void(bool)> connected_callback = nullptr;
     std::function<void(int)> battery_callback = nullptr;
@@ -20,32 +18,19 @@ private:
      * @brief Callback function for usb interrupts
     */
     static void handle_interrupt(libusb_transfer* transfer);
-    
-    /**
-     * @brief Callback function for usb control transfers
-    */
-    static void handle_control(libusb_transfer* transfer);
-
-    /**
-     * @brief Send a control transfer to the headset.
-     * @param request   The packet to send
-     * @param timeout   The timeout for the usb transaction in ms
-    */
-    void send_control_transfer(Packet* request, int timeout = 1000);
 
 public:
     static const unsigned char endpoint = 3 | LIBUSB_ENDPOINT_IN; // Arctis 7 headset HID endpoint
     static const int interface = 5; //USB interface used by Arctis 7
 
-    Headset(libusb_device_handle *handle);
-    ~Headset();
+    Headset(USBHandle&& handle);
 
     /**
      * @brief This function sets up the interrupt input transfers required to 
     *         read data from the device. As such, it must be called before data
     *         is read to/from the device
     */
-    void start_interrupt_listener();
+    // void start_interrupt_listener();
 
     /**
      * @brief Configures whether or not the transmitter LED should blink when
@@ -75,7 +60,7 @@ public:
     void set_mic_volume(uint8_t volume);
     
     // TODO: Not yet supported
-    void sound_setting() {};
+    // void sound_setting() {};
     
     /**
      * @brief Set the callback function used when a connection packet is received
