@@ -1,86 +1,86 @@
 [
-  {
-    "arguments": [
-      "/usr/bin/g++",
-      "-Iinclude",
-      "-g",
-      "-Og",
-      "-std=c++23",
-      "-Wall",
-      "-Wextra",
-      "-Wconversion",
-      "-Wpedantic",
-      "-DDEBUG",
-      "-c",
-      "-o",
-      "build/debug/src/NewHeadset.cpp.o",
-      "src/NewHeadset.cpp"
-    ],
-    "directory": "/home/benjamin/src/Arctis7-Controller",
-    "file": "/home/benjamin/src/Arctis7-Controller/src/NewHeadset.cpp",
-    "output": "/home/benjamin/src/Arctis7-Controller/build/debug/src/NewHeadset.cpp.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/g++",
-      "-Iinclude",
-      "-g",
-      "-Og",
-      "-std=c++23",
-      "-Wall",
-      "-Wextra",
-      "-Wconversion",
-      "-Wpedantic",
-      "-DDEBUG",
-      "-c",
-      "-o",
-      "build/debug/src/usb.cpp.o",
-      "src/usb.cpp"
-    ],
-    "directory": "/home/benjamin/src/Arctis7-Controller",
-    "file": "/home/benjamin/src/Arctis7-Controller/src/usb.cpp",
-    "output": "/home/benjamin/src/Arctis7-Controller/build/debug/src/usb.cpp.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/g++",
-      "-Iinclude",
-      "-g",
-      "-Og",
-      "-std=c++23",
-      "-Wall",
-      "-Wextra",
-      "-Wconversion",
-      "-Wpedantic",
-      "-DDEBUG",
-      "-c",
-      "-o",
-      "build/debug/src/usb_handle.cpp.o",
-      "src/usb_handle.cpp"
-    ],
-    "directory": "/home/benjamin/src/Arctis7-Controller",
-    "file": "/home/benjamin/src/Arctis7-Controller/src/usb_handle.cpp",
-    "output": "/home/benjamin/src/Arctis7-Controller/build/debug/src/usb_handle.cpp.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/g++",
-      "-Iinclude",
-      "-g",
-      "-Og",
-      "-std=c++23",
-      "-Wall",
-      "-Wextra",
-      "-Wconversion",
-      "-Wpedantic",
-      "-DDEBUG",
-      "-c",
-      "-o",
-      "build/debug/src/main.cpp.o",
-      "src/main.cpp"
-    ],
-    "directory": "/home/benjamin/src/Arctis7-Controller",
-    "file": "/home/benjamin/src/Arctis7-Controller/src/main.cpp",
-    "output": "/home/benjamin/src/Arctis7-Controller/build/debug/src/main.cpp.o"
-  }
+    {
+        "arguments": [
+            "/usr/bin/g++",
+            "-Iinclude",
+            "-g",
+            "-Og",
+            "-std=c++23",
+            "-Wall",
+            "-Wextra",
+            "-Wconversion",
+            "-Wpedantic",
+            "-DDEBUG",
+            "-c",
+            "-o",
+            "build/debug/src/NewHeadset.cpp.o",
+            "src/NewHeadset.cpp"
+        ],
+        "directory": "/home/benjamin/src/Arctis7-Controller",
+        "file": "/home/benjamin/src/Arctis7-Controller/src/NewHeadset.cpp",
+        "output": "/home/benjamin/src/Arctis7-Controller/build/debug/src/NewHeadset.cpp.o"
+    },
+    {
+        "arguments": [
+            "/usr/bin/g++",
+            "-Iinclude",
+            "-g",
+            "-Og",
+            "-std=c++23",
+            "-Wall",
+            "-Wextra",
+            "-Wconversion",
+            "-Wpedantic",
+            "-DDEBUG",
+            "-c",
+            "-o",
+            "build/debug/src/usb.cpp.o",
+            "src/usb.cpp"
+        ],
+        "directory": "/home/benjamin/src/Arctis7-Controller",
+        "file": "/home/benjamin/src/Arctis7-Controller/src/usb.cpp",
+        "output": "/home/benjamin/src/Arctis7-Controller/build/debug/src/usb.cpp.o"
+    },
+    {
+        "arguments": [
+            "/usr/bin/g++",
+            "-Iinclude",
+            "-g",
+            "-Og",
+            "-std=c++23",
+            "-Wall",
+            "-Wextra",
+            "-Wconversion",
+            "-Wpedantic",
+            "-DDEBUG",
+            "-c",
+            "-o",
+            "build/debug/src/usb_handle.cpp.o",
+            "src/usb_handle.cpp"
+        ],
+        "directory": "/home/benjamin/src/Arctis7-Controller",
+        "file": "/home/benjamin/src/Arctis7-Controller/src/usb_handle.cpp",
+        "output": "/home/benjamin/src/Arctis7-Controller/build/debug/src/usb_handle.cpp.o"
+    },
+    {
+        "arguments": [
+            "/usr/bin/g++",
+            "-Iinclude",
+            "-g",
+            "-Og",
+            "-std=c++23",
+            "-Wall",
+            "-Wextra",
+            "-Wconversion",
+            "-Wpedantic",
+            "-DDEBUG",
+            "-c",
+            "-o",
+            "build/debug/src/main.cpp.o",
+            "src/main.cpp"
+        ],
+        "directory": "/home/benjamin/src/Arctis7-Controller",
+        "file": "/home/benjamin/src/Arctis7-Controller/src/main.cpp",
+        "output": "/home/benjamin/src/Arctis7-Controller/build/debug/src/main.cpp.o"
+    }
 ]

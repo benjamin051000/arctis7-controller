@@ -1,0 +1,4 @@
+BasedOnStyle: Google
+# UseTab: ForIndentation  # Uses tabs for indentation, spaces for alignment
+# TabWidth: 4             # Optional: set tab width (default is usually 8)
+IndentWidth: 4
