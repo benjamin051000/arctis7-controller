@@ -41,11 +41,17 @@ USBHandle USB::find_device(const uint16_t idVendor, const uint16_t idProduct,
 
     for (auto i = 0; i < list_size; i++) {
         libusb_device_descriptor desc;
-        const auto err = libusb_get_device_descriptor(devices[i], &desc);
+        [[maybe_unused]] const auto err =
+            libusb_get_device_descriptor(devices[i], &desc);
+
+        // Note since libusb-1.0.16, LIBUSBX_API_VERSION >= 0x01000102, this
+        // function always succeeds.
+#if LIBUSBX_API_VERSION < 0x01000102
         if (err != LIBUSB_SUCCESS) {
             libusb_free_device_list(devices, true);
             throw libusb_error(err);
         }
+#endif
 
         if (desc.idVendor == idVendor && desc.idProduct == idProduct &&
             desc.iManufacturer == iManufacturer && desc.iProduct == iProduct) {
