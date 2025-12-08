@@ -24,7 +24,9 @@ int main() {
     // TODO: This error handling just exits when anything bad happens.
     //		 It should be a little more robust. (Get rid of try-throw-catch)
     try {
-        USB usb;
+        USB usb;  // WARNING: This MUST outlive all USBHandle objects!
+                  // TODO unless maybe this fn could return a reference, and USB
+                  // manages them all? That might be the move actually
         auto handle = usb.find_device(0x1038, 0x12ad, 4, 5);
 
         // libusb_set_option(ctx, LIBUSB_OPTION_LOG_LEVEL,
