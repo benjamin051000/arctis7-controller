@@ -16,6 +16,8 @@ class USBHandle {
 
     USBHandle(libusb_context* ctx, libusb_device* const dev,
               const int interface);
+
+    // Allow USB to call the private constructor.
     friend class USB;
 
     /**
