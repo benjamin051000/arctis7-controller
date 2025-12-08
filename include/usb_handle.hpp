@@ -10,7 +10,6 @@
 class USBHandle {
     libusb_context* const ctx;
     const int interface;
-    bool detachedKernelDriver = false;
     std::mutex active_transfers_mutex;
     std::set<libusb_transfer*> active_transfers;
     std::unordered_map<libusb_transfer*, void (*)(void)> callback_map;

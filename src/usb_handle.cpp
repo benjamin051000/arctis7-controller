@@ -12,22 +12,14 @@ USBHandle::USBHandle(libusb_context* ctx, libusb_device* const dev,
 
     // Apparently detaching the USB device's kernel driver is a required step on
     // Linux.
-    if (libusb_has_capability(LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER)) {
-        if (libusb_kernel_driver_active(handle, interface)) {
-            err = libusb_detach_kernel_driver(handle, interface);
-            if (err != LIBUSB_SUCCESS) {
-                libusb_close(handle);
-                throw libusb_error(err);
-            }
-            detachedKernelDriver = true;
-        }
+    err = libusb_set_auto_detach_kernel_driver(handle, true);
+    if (err != LIBUSB_SUCCESS && err != LIBUSB_ERROR_NOT_SUPPORTED) {
+        libusb_close(handle);
+        throw libusb_error(err);
     }
 
-    err = libusb_claim_interface(handle, interface);
+    err = libusb_claim_interface(handle, this->interface);
     if (err != LIBUSB_SUCCESS) {
-        if (detachedKernelDriver) {
-            libusb_attach_kernel_driver(handle, interface);
-        }
         libusb_close(handle);
         throw libusb_error(err);
     }
@@ -62,12 +54,6 @@ USBHandle::~USBHandle() {
 
     libusb_release_interface(handle, interface);
     puts("1");
-
-    if (detachedKernelDriver) {
-        puts("2");
-        libusb_attach_kernel_driver(handle, interface);
-        puts("3");
-    }
 
     // BUG this line hangs.
     libusb_close(handle);
