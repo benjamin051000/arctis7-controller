@@ -12,14 +12,6 @@
 
 #include "usb.hpp"
 
-void print_packet(const Packet* packet) {
-    const uint8_t* buf = reinterpret_cast<const uint8_t*>(packet);
-    for (long unsigned int i = 0; i < sizeof(*packet); i++) {
-        printf("%02x ", buf[i]);
-    }
-    printf("\n");
-}
-
 int main() {
     // TODO: This error handling just exits when anything bad happens.
     //		 It should be a little more robust. (Get rid of try-throw-catch)

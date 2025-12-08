@@ -7,6 +7,7 @@
 #include <memory>
 #include <vector>
 
+#include "Packets.h"
 #include "usb_handle.hpp"
 
 class USB {
@@ -26,4 +27,6 @@ class USB {
     std::vector<pollfd> get_pollfds();
     timeval get_next_timeout();
     void handle_events_timeout();
+
+    static void print_packet(const Packet* const packet) noexcept;
 };

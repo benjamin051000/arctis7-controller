@@ -102,3 +102,11 @@ void USB::handle_events_timeout() {
     timeval zero{.tv_sec = 0, .tv_usec = 0};
     libusb_handle_events_timeout(ctx.get(), &zero);
 }
+
+void USB::print_packet(const Packet* const packet) noexcept {
+    const auto buf = reinterpret_cast<const uint8_t* const>(packet);
+    for (long unsigned i = 0; i < sizeof(*packet); i++) {
+        printf("%02x ", buf[i]);
+    }
+    printf("\n");
+}
