@@ -2,6 +2,7 @@
 
 #include <libusb-1.0/libusb.h>
 
+#include <cstdint>
 #include <cstdio>
 
 void USBHandle::libusb_device_handle_deleter::operator()(
@@ -87,9 +88,11 @@ void USBHandle::submit_control_transfer(Packet* const request,
     callback_map[transfer] = callback;
 
     uint8_t* buffer = new uint8_t[sizeof(*request) + 8]();
-    libusb_fill_control_setup(buffer,
-                              (LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_CLASS |
-                               LIBUSB_RECIPIENT_INTERFACE),
+    const uint8_t bmRequestType =
+        static_cast<uint8_t>(LIBUSB_ENDPOINT_OUT) |
+        static_cast<uint8_t>(LIBUSB_REQUEST_TYPE_CLASS) |
+        static_cast<uint8_t>(LIBUSB_RECIPIENT_INTERFACE);
+    libusb_fill_control_setup(buffer, bmRequestType,
                               LIBUSB_REQUEST_SET_CONFIGURATION,
                               0x0206,  // Not sure what this means
                               0x0005,  // Not sure what this means
@@ -133,6 +136,7 @@ void USBHandle::control_transfer_handler(libusb_transfer* transfer) {
 }
 
 void USBHandle::interrupt_transfer_handler(libusb_transfer* transfer) {
+    puts("interrupt_transfer_handler()");
     if (transfer->status == LIBUSB_TRANSFER_COMPLETED &&
         transfer->actual_length > 0) {
         const auto handle = static_cast<USBHandle*>(transfer->user_data);
@@ -161,18 +165,21 @@ void USBHandle::interrupt_transfer_handler(libusb_transfer* transfer) {
             throw libusb_error(err);
         }
     } else if (transfer->status == LIBUSB_TRANSFER_CANCELLED) {
+        puts("cancelling...");
         delete transfer->buffer;
         libusb_free_transfer(transfer);
     } else {
         throw libusb_transfer_status(transfer->status);
     }
+    puts("interrupt_transfer_handler() done.");
 }
 
 void USBHandle::start_interrupt_listener(const unsigned char endpoint) {
     // TODO if this is slow, do it in the constructor.
     const auto device = libusb_get_device(handle.get());
 
-    const auto buffer_size = libusb_get_max_packet_size(device, endpoint) * 2;
+    const auto buffer_size =
+        libusb_get_max_packet_size(device, endpoint) * 2;  // TODO why *2?
 
     uint8_t* interrupt_buffer = new uint8_t[buffer_size];
 
