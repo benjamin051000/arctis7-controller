@@ -69,9 +69,9 @@ USBHandle USB::find_device(const uint16_t idVendor, const uint16_t idProduct,
 
                 return handle;
 
-            } catch (const libusb_error& err) {
+            } catch (const libusb_error& error) {
                 libusb_free_device_list(devices, true);
-                throw err;
+                throw error;
             }
         }
     }
