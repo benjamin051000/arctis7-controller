@@ -12,6 +12,12 @@
             "-Wshadow=compatible-local",
             "-Wpedantic",
             "-Wconversion",
+            "-Wfloat-equal",
+            "-Wswitch-enum",
+            "-Wcast-qual",
+            "-Wnon-virtual-dtor",
+            "-Woverloaded-virtual",
+            "-Wold-style-cast",
             "-DDEBUG",
             "-c",
             "-o",
@@ -35,15 +41,21 @@
             "-Wshadow=compatible-local",
             "-Wpedantic",
             "-Wconversion",
+            "-Wfloat-equal",
+            "-Wswitch-enum",
+            "-Wcast-qual",
+            "-Wnon-virtual-dtor",
+            "-Woverloaded-virtual",
+            "-Wold-style-cast",
             "-DDEBUG",
             "-c",
             "-o",
-            "build/debug/src/usb.cpp.o",
-            "src/usb.cpp"
+            "build/debug/src/main.cpp.o",
+            "src/main.cpp"
         ],
         "directory": "/home/benjamin/src/Arctis7-Controller",
-        "file": "/home/benjamin/src/Arctis7-Controller/src/usb.cpp",
-        "output": "/home/benjamin/src/Arctis7-Controller/build/debug/src/usb.cpp.o"
+        "file": "/home/benjamin/src/Arctis7-Controller/src/main.cpp",
+        "output": "/home/benjamin/src/Arctis7-Controller/build/debug/src/main.cpp.o"
     },
     {
         "arguments": [
@@ -58,6 +70,12 @@
             "-Wshadow=compatible-local",
             "-Wpedantic",
             "-Wconversion",
+            "-Wfloat-equal",
+            "-Wswitch-enum",
+            "-Wcast-qual",
+            "-Wnon-virtual-dtor",
+            "-Woverloaded-virtual",
+            "-Wold-style-cast",
             "-DDEBUG",
             "-c",
             "-o",
@@ -81,14 +99,20 @@
             "-Wshadow=compatible-local",
             "-Wpedantic",
             "-Wconversion",
+            "-Wfloat-equal",
+            "-Wswitch-enum",
+            "-Wcast-qual",
+            "-Wnon-virtual-dtor",
+            "-Woverloaded-virtual",
+            "-Wold-style-cast",
             "-DDEBUG",
             "-c",
             "-o",
-            "build/debug/src/main.cpp.o",
-            "src/main.cpp"
+            "build/debug/src/usb.cpp.o",
+            "src/usb.cpp"
         ],
         "directory": "/home/benjamin/src/Arctis7-Controller",
-        "file": "/home/benjamin/src/Arctis7-Controller/src/main.cpp",
-        "output": "/home/benjamin/src/Arctis7-Controller/build/debug/src/main.cpp.o"
+        "file": "/home/benjamin/src/Arctis7-Controller/src/usb.cpp",
+        "output": "/home/benjamin/src/Arctis7-Controller/build/debug/src/usb.cpp.o"
     }
 ]

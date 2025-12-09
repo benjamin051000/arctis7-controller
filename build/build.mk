@@ -11,7 +11,7 @@ VERSION_FLAG ?=
 DEBUG_MACROS ?= DEBUG
 RELEASE_MACROS ?= NDEBUG
 
-DEBUG_FLAGS = -g -Og --std=c++23 -Wall -Wextra -Wunused -Wshadow=compatible-local -Wpedantic -Wconversion $(addprefix -D,$(DEBUG_MACROS))
+DEBUG_FLAGS = -g -Og --std=c++23 -Wall -Wextra -Wunused -Wshadow=compatible-local -Wpedantic -Wconversion -Wfloat-equal -Wswitch-enum -Wcast-qual -Wnon-virtual-dtor -Woverloaded-virtual -Wold-style-cast $(addprefix -D,$(DEBUG_MACROS))
 # TODO -Os, -O3, -Ofast?
 RELEASE_FLAGS = -Ofast -std=c++23 -Wall -s $(addprefix -D,$(RELEASE_MACROS))
 
