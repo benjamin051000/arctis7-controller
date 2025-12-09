@@ -45,7 +45,7 @@ int main() {
         std::chrono::time_point start = std::chrono::steady_clock::now();
         std::chrono::duration poll_period = std::chrono::seconds(2);
         std::chrono::time_point poll_timeout = start + poll_period;
-        long int timeout_ms = 0;
+        int timeout_ms = 0;
 
         puts("c -> connection");
         puts("b -> battery");
@@ -58,12 +58,12 @@ int main() {
             const auto now = std::chrono::steady_clock::now();
             const auto libusb_timeout = libusb_period + now;
             if (libusb_timeout < poll_timeout) {
-                timeout_ms = libusb_period.count();
+                timeout_ms = static_cast<int>(libusb_period.count());
             } else {
-                timeout_ms =
+                timeout_ms = static_cast<int>(
                     std::chrono::duration_cast<std::chrono::milliseconds>(
                         poll_timeout - now)
-                        .count();
+                        .count());
             }
             if (timeout_ms < 0) {
                 timeout_ms = 0;
