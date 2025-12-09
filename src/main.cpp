@@ -2,7 +2,6 @@
 
 #include "NewHeadset.h"
 #include "Packets.h"
-#include "TimevalDurationCast.h"
 // #include <pulse/something.h>
 
 #include <poll.h>
@@ -55,15 +54,11 @@ int main() {
         bool should_exit = false;
         while (!should_exit) {
             // Calculate the next timeout (from libusb or our periodic polling)
-            auto tv = usb.get_next_timeout();
-            std::chrono::time_point now = std::chrono::steady_clock::now();
-            std::chrono::milliseconds libusb_period =
-                std::chrono::duration_cast<std::chrono::milliseconds>(tv);
-            std::chrono::time_point libusb_timeout = libusb_period + now;
+            const auto libusb_period = usb.get_next_timeout();
+            const auto now = std::chrono::steady_clock::now();
+            const auto libusb_timeout = libusb_period + now;
             if (libusb_timeout < poll_timeout) {
-                timeout_ms =
-                    std::chrono::duration_cast<std::chrono::milliseconds>(tv)
-                        .count();
+                timeout_ms = libusb_period.count();
             } else {
                 timeout_ms =
                     std::chrono::duration_cast<std::chrono::milliseconds>(

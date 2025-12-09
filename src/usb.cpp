@@ -5,8 +5,11 @@
 #include <sys/poll.h>
 #include <sys/types.h>
 
+#include <chrono>
 #include <cstdint>
 #include <vector>
+
+#include "TimevalDurationCast.h"
 
 void USB::libusb_context_deleter::operator()(
     libusb_context* const ctx) const noexcept {
@@ -92,10 +95,11 @@ std::vector<pollfd> USB::get_pollfds() {
     return pollfds;
 }
 
-timeval USB::get_next_timeout() {
+std::chrono::milliseconds USB::get_next_timeout() {
     timeval tv;
     libusb_get_next_timeout(ctx.get(), &tv);
-    return tv;
+    auto period = std::chrono::duration_cast<std::chrono::milliseconds>(tv);
+    return period;
 }
 
 void USB::handle_events_timeout() {
@@ -104,7 +108,7 @@ void USB::handle_events_timeout() {
 }
 
 void USB::print_packet(const Packet* const packet) noexcept {
-    const auto buf = reinterpret_cast<const uint8_t* const>(packet);
+    const auto buf = reinterpret_cast<const uint8_t*>(packet);
     for (long unsigned i = 0; i < sizeof(*packet); i++) {
         printf("%02x ", buf[i]);
     }

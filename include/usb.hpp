@@ -3,6 +3,7 @@
 #include <poll.h>
 #include <sys/time.h>
 
+#include <chrono>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -25,7 +26,7 @@ class USB {
                           const uint8_t iProduct) const;
 
     std::vector<pollfd> get_pollfds();
-    timeval get_next_timeout();
+    std::chrono::milliseconds get_next_timeout();
     void handle_events_timeout();
 
     static void print_packet(const Packet* const packet) noexcept;
