@@ -1,7 +1,6 @@
 #include <libusb-1.0/libusb.h>
 
 #include "NewHeadset.h"
-#include "Packets.h"
 // #include <pulse/something.h>
 
 #include <poll.h>
