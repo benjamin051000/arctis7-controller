@@ -15,7 +15,7 @@ class USBHandle {
     std::set<libusb_transfer*> active_transfers;
     std::unordered_map<libusb_transfer*, void (*)(void)> callback_map;
 
-    USBHandle(libusb_context* ctx, libusb_device* const dev,
+    USBHandle(libusb_context *const ctx, libusb_device* const dev,
               const int interface);
 
     // Allow USB to call the private constructor.

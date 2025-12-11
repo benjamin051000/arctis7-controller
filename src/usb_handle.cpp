@@ -12,7 +12,7 @@ void USBHandle::libusb_device_handle_deleter::operator()(
     }
 }
 
-USBHandle::USBHandle(libusb_context* ctx, libusb_device* const dev,
+USBHandle::USBHandle(libusb_context *const ctx, libusb_device* const dev,
                      const int interface)
     : ctx(ctx), interface(interface) {
     int err;
