@@ -28,6 +28,9 @@ USB::USB() {
         throw libusb_error(err);
     }
     ctx.reset(temp);
+
+    libusb_set_option(ctx.get(), LIBUSB_OPTION_LOG_LEVEL,
+                      LIBUSB_LOG_LEVEL_DEBUG);
 }
 
 USBHandle USB::find_device(const uint16_t idVendor, const uint16_t idProduct,
