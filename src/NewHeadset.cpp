@@ -3,7 +3,9 @@
 #include <cstdio>
 
 Headset::Headset(USBHandle&& handle) : handle(std::move(handle)) {
+    puts("Headset()");
     this->handle.start_interrupt_listener(endpoint);
+    puts("Headset() done.");
 }
 
 void Headset::set_blink_transmitter_led(bool enable) {

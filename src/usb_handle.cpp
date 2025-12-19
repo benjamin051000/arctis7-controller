@@ -12,9 +12,10 @@ void USBHandle::libusb_device_handle_deleter::operator()(
     }
 }
 
-USBHandle::USBHandle(libusb_context *const ctx, libusb_device* const dev,
+USBHandle::USBHandle(libusb_context* const ctx, libusb_device* const dev,
                      const int interface)
     : ctx(ctx), interface(interface) {
+    puts("USBHandle()");
     int err;
 
     {
@@ -35,9 +36,10 @@ USBHandle::USBHandle(libusb_context *const ctx, libusb_device* const dev,
 
     err = libusb_claim_interface(handle.get(), this->interface);
     if (err != LIBUSB_SUCCESS) {
-		// TODO is handle deleter called implicitly here?
+        // TODO is handle deleter called implicitly here?
         throw libusb_error(err);
     }
+    puts("USBHandle() done.");
 }
 
 USBHandle::USBHandle(USBHandle&& other) noexcept
@@ -46,34 +48,47 @@ USBHandle::USBHandle(USBHandle&& other) noexcept
       active_transfers_mutex(),
       active_transfers(std::move(other.active_transfers)),
       callback_map(std::move(other.callback_map)),
-      handle(std::move(other.handle)) {}
+      handle(std::move(other.handle)) {
+    printf("USBHandle(&&): moved handle=%p\n",
+           static_cast<void*>(handle.get()));
+}
 
 USBHandle::~USBHandle() {
-    puts("~USBHandle");
+    printf("~USBHandle(): moved handle=%p\n", static_cast<void*>(handle.get()));
     {
         std::lock_guard<std::mutex> lock(active_transfers_mutex);
+        printf("cancelling %zu transfers...\n", active_transfers.size());
         for (auto i : active_transfers) {
             libusb_cancel_transfer(i);
         }
     }
 
+    unsigned i = 0;
+    puts("waiting for cancels...");
     while (true) {
+        i++;
         {
             std::lock_guard<std::mutex> lock(active_transfers_mutex);
+            printf("num active transfers: %zu\n", active_transfers.size());
             if (active_transfers.empty()) {
                 break;
             }
         }
 
+        // TODO maybe this needs to happen BEFORE we cancel everything,
+        // so the callback gets a chance to run before being cancelled?
         if (libusb_handle_events_completed(ctx, nullptr) != LIBUSB_SUCCESS) {
             puts("Uh oh, something bad happened.");
         }
     }
-	// In a moved-from state, handle (unique_ptr) will be nullptr. 
-	// So, don't release the interface in that case.
-	if (handle) {
-		libusb_release_interface(handle.get(), interface);
-	}
+    printf("took %d iterations\n", i);
+
+    // In a moved-from state, handle (unique_ptr) will be nullptr.
+    // So, don't release the interface in that case.
+    if (handle) {
+        libusb_release_interface(handle.get(), interface);
+    }
+    puts("~USBHandle() done.");
 }
 
 void USBHandle::submit_control_transfer(Packet* const request,
@@ -87,6 +102,8 @@ void USBHandle::submit_control_transfer(Packet* const request,
 
     {
         std::lock_guard<std::mutex> lock(active_transfers_mutex);
+        printf("active_transfers len: %zu -> %zu\n", active_transfers.size(),
+               active_transfers.size() + 1);
         active_transfers.insert(transfer);
     }
     callback_map[transfer] = callback;
@@ -123,6 +140,9 @@ void USBHandle::control_transfer_handler(libusb_transfer* transfer) {
         {
             std::lock_guard<std::mutex> lock(handle->active_transfers_mutex);
             // TODO what if it isn't there? Does this throw? Or do nothing?
+            printf("active_transfers len: %zu -> %zu\n",
+                   handle->active_transfers.size(),
+                   handle->active_transfers.size() - 1);
             handle->active_transfers.erase(transfer);
         }
 
@@ -141,13 +161,17 @@ void USBHandle::control_transfer_handler(libusb_transfer* transfer) {
 
 void USBHandle::interrupt_transfer_handler(libusb_transfer* transfer) {
     puts("interrupt_transfer_handler()");
-    if (transfer->status == LIBUSB_TRANSFER_COMPLETED &&
-        transfer->actual_length > 0) {
+    if (transfer->status == LIBUSB_TRANSFER_COMPLETED) {
+        if (transfer->actual_length <= 0) {
+            puts("actual length is <=0? weird.");
+        }
         const auto handle = static_cast<USBHandle*>(transfer->user_data);
 
         // TODO when isn't it sizeof(Packet)?
         // TODO Packet is coupled to Arctis. Make more generic?
         if (transfer->actual_length == sizeof(Packet)) {
+            puts("Packet recieved.");
+
             [[maybe_unused]] const auto callback =
                 handle->callback_map[transfer];
             // callback(); TODO
@@ -172,17 +196,25 @@ void USBHandle::interrupt_transfer_handler(libusb_transfer* transfer) {
     } else if (transfer->status == LIBUSB_TRANSFER_CANCELLED) {
         puts("cancelling...");
         const auto handle = static_cast<USBHandle*>(transfer->user_data);
-		if(handle)
-        {
+        if (handle) {
             std::lock_guard<std::mutex> lock(handle->active_transfers_mutex);
             // TODO what if it isn't there? Does this throw? Or do nothing?
+            printf("active_transfers len: %zu -> ",
+                   handle->active_transfers.size());
             handle->active_transfers.erase(transfer);
+            printf("%zu\n", handle->active_transfers.size());
+        } else {
+            puts("Uh, handle was a nullptr.");
         }
 
         delete transfer->buffer;
+
         libusb_free_transfer(transfer);
+        puts("cancelled & deleted transfer.");
     } else {
-        throw libusb_transfer_status(transfer->status);
+        auto foo = transfer->status;
+        printf("transfer->status = %d\n", foo);
+        // throw libusb_transfer_status(transfer->status);
     }
     puts("interrupt_transfer_handler() done.");
 }
@@ -194,7 +226,7 @@ void USBHandle::start_interrupt_listener(const unsigned char endpoint) {
     const auto buffer_size =
         libusb_get_max_packet_size(device, endpoint) * 2;  // TODO why *2?
 
-	// TODO verify buffer_size > 0 before casting?
+    // TODO verify buffer_size > 0 before casting?
     uint8_t* interrupt_buffer = new uint8_t[static_cast<unsigned>(buffer_size)];
 
     libusb_transfer* transfer = libusb_alloc_transfer(0);
@@ -217,6 +249,6 @@ void USBHandle::start_interrupt_listener(const unsigned char endpoint) {
         std::lock_guard<std::mutex> lock(active_transfers_mutex);
         printf("active_transfers len: %zu -> ", active_transfers.size());
         active_transfers.insert(transfer);
-		printf("%zu\n", active_transfers.size());
+        printf("%zu\n", active_transfers.size());
     }
 }
