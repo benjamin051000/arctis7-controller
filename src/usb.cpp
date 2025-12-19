@@ -107,7 +107,11 @@ std::chrono::milliseconds USB::get_next_timeout() {
 
 void USB::handle_events_timeout() {
     timeval zero{.tv_sec = 0, .tv_usec = 0};
-    libusb_handle_events_timeout(ctx.get(), &zero);
+    auto err =
+        libusb_handle_events_timeout_completed(ctx.get(), &zero, nullptr);
+    if (err != LIBUSB_SUCCESS) {
+        throw libusb_strerror(err);
+    }
 }
 
 void USB::print_packet(const Packet* const packet) noexcept {
